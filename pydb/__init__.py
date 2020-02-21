@@ -5,7 +5,8 @@ from flask_cors import CORS
 from pydb.db import load_db, write_db
 
 
-def handle_get(db, key, path):
+def handle_get(dbtup, key, path):
+    db = dbtup[0]
     ret = {}
     # print(path)
     if path != [] and path != [""]:
@@ -27,7 +28,8 @@ def handle_get(db, key, path):
 # handle_get
 
 
-def handle_post(db, key, data):
+def handle_post(dbtup, key, data):
+    db = dbtup[0]
     keynames = []
     new_id = -1
 
@@ -52,7 +54,7 @@ def handle_post(db, key, data):
     # print(db[key])
     # print(new_obj)
 
-    write_db(db, "db.json")
+    write_db(db, dbtup[1])
 
     return jsonify(db[key][new_id-1])
 # handle_post
@@ -61,7 +63,7 @@ def handle_post(db, key, data):
 def create_app():
     app = Flask(__name__)
     CORS(app)
-    db = load_db("db.json")
+    dbtup = (load_db("db.json"), "db.json")
 
     # routes
     @app.route("/")
@@ -73,12 +75,12 @@ def create_app():
         # print(p)
         path = p.split("/")
         key = None
-        for k in db.keys():
+        for k in dbtup[0].keys():
             # print(k)
             if path[0] == k:
                 key = k
         if key:
-            return handle_get(db, key, path[1:])
+            return handle_get(dbtup, key, path[1:])
         else:
             return "No matching key\n"
     # gets
@@ -90,12 +92,12 @@ def create_app():
         key = None
         data = request.json
 
-        for k in db.keys():
+        for k in dbtup[0].keys():
             # print(k)
             if path[0] == k:
                 key = k
         if key:
-            return handle_post(db, key, data)
+            return handle_post(dbtup, key, data)
         else:
             return "No matching key\n"
     # posts
