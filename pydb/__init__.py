@@ -1,5 +1,5 @@
 # pydb/__init__.py
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 from pydb.db import load_db
@@ -32,6 +32,8 @@ def handle_get(db, key, path):
 def handle_post(db, key, data):
     pass
     print(data)
+    # Get new ID and add info
+    return jsonify(data)
 # handle_post
 
 
