@@ -1,0 +1,19 @@
+{
+    "users": [
+        { "name": "Sebastian Safari", "email": "ssebs@ssebs.com" },
+        {
+            "name": "Test User",
+            "email": "contact@ssebs.com"
+        }
+    ],
+    "posts": [
+        {
+            "id": 1,
+            "text": "My first post!"
+        },
+        {
+            "id": 2,
+            "text": "2nd post"
+        }
+    ]
+}
