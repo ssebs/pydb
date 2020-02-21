@@ -105,6 +105,31 @@ def handle_put(dbtup, key, path, data):
 # handle_post
 
 
+def handle_delete(dbtup, key, path):
+    db = dbtup[0]
+    intpath = int(path[0])
+    index = -1
+
+    # missing id
+    if path == [] or path == [""]:
+        return "Error! You must provide an ID in the path\n"
+
+    try:
+        for i, item in enumerate(db[key]):
+            for (k, v) in item.items():
+                if k == "id" and v == intpath:
+                    # print(item)
+                    del db[key][i]
+    except Exception as e:
+        return f"Error! {e}"
+
+    # print(db)
+    write_db(db, dbtup[1])
+
+    return f"Success! Deleted id: {intpath}\n"
+# handle_delete
+
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -163,6 +188,21 @@ def create_app():
         else:
             return "No matching key\n"
     # puts
+
+    @app.route("/api/<path:p>", methods=["DELETE"])
+    def deletes(p):
+        # print(p)
+        path = p.split("/")
+        key = None
+        for k in dbtup[0].keys():
+            # print(k)
+            if path[0] == k:
+                key = k
+        if key:
+            return handle_delete(dbtup, key, path[1:])
+        else:
+            return "No matching key\n"
+    # deletes
 
     app.app_context().push()
     return app
