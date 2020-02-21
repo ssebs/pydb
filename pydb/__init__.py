@@ -2,9 +2,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from pydb.db import load_db
-
-# init
+from pydb.db import load_db, write_db
 
 
 def handle_get(db, key, path):
@@ -19,7 +17,7 @@ def handle_get(db, key, path):
                 # Do search
                 if path[0].lower() in str(v).lower():
                     if item not in ret[key]:
-                        ret[key].append(x)
+                        ret[key].append(item)
 
     else:
         # print("No subpath, returning all")
@@ -30,10 +28,33 @@ def handle_get(db, key, path):
 
 
 def handle_post(db, key, data):
-    pass
-    print(data)
-    # Get new ID and add info
-    return jsonify(data)
+    keynames = []
+    new_id = -1
+
+    # Get new ID
+    for item in db[key]:
+        for (k, v) in item.items():
+            if k == "id" and new_id <= v:
+                new_id = v + 1
+            keynames.append(k)
+
+    # Verify data structure is OK
+    for k in data.keys():
+        if k not in keynames:
+            return "Error! db structure does not match\n"
+
+    # Create record
+    new_obj = data.copy()
+    new_obj["id"] = new_id
+    db[key].append(new_obj)
+
+    # print(db)
+    # print(db[key])
+    # print(new_obj)
+
+    write_db(db, "db.json")
+
+    return jsonify(db[key][new_id-1])
 # handle_post
 
 
