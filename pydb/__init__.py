@@ -15,10 +15,14 @@ def handle_get(dbtup, key, path):
         for item in db[key]:
             # For every obj in the item
             for (k, v) in item.items():
-                # Do search
-                if path[0].lower() in str(v).lower():
-                    if item not in ret[key]:
+                if int(path[0]):
+                    if k == "id" and v == int(path[0]):
                         ret[key].append(item)
+                else:
+                    # Do string search
+                    if path[0].lower() in str(v).lower():
+                        if item not in ret[key]:
+                            ret[key].append(item)
 
     else:
         # print("No subpath, returning all")
