@@ -64,6 +64,47 @@ def handle_post(dbtup, key, data):
 # handle_post
 
 
+def handle_put(dbtup, key, path, data):
+    db = dbtup[0]
+    keynames = []
+    intpath = int(path[0])
+    index = -1
+
+    # missing id
+    if path == [] or path == [""]:
+        return "Error! You must provide an ID in the path\n"
+
+    if "id" not in data:
+        return "Error! You must provide an ID in the object\n"
+
+    if intpath != data["id"]:
+        return "Error! The ID in the path and in the object must match\n"
+
+    # Update record
+    try:
+        for i, item in enumerate(db[key]):
+            for (k, v) in item.items():
+                keynames.append(k)
+                if intpath == data["id"]:
+                    if k == "id" and v == intpath:
+                        # print(item)
+                        # print(data)
+                        db[key][i] = data.copy()
+                        index = i
+    except Exception as e:
+        return f"Error! {e}"
+
+    # Verify data structure is OK
+    for k in data.keys():
+        if k not in keynames:
+            return "Error! db structure does not match\n"
+
+    write_db(db, dbtup[1])
+
+    return jsonify(db[key][index])
+# handle_post
+
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -105,6 +146,23 @@ def create_app():
         else:
             return "No matching key\n"
     # posts
+
+    @app.route("/api/<path:p>", methods=["PUT", "PATCH"])
+    def puts(p):
+        # print(p)
+        path = p.split("/")
+        key = None
+        data = request.json
+
+        for k in dbtup[0].keys():
+            # print(k)
+            if path[0] == k:
+                key = k
+        if key:
+            return handle_put(dbtup, key,  path[1:], data)
+        else:
+            return "No matching key\n"
+    # puts
 
     app.app_context().push()
     return app
