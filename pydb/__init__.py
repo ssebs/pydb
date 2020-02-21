@@ -137,8 +137,9 @@ def create_app():
 
     # routes
     @app.route("/")
-    def test():
-        return "Flask up and running\n"
+    @app.route("/api")
+    def show_all():
+        return jsonify(dbtup[0])
 
     @app.route("/api/<path:p>", methods=["GET"])
     def gets(p):
